@@ -18,7 +18,7 @@ Optional (for DB GUI):
 ## 1) Clone the project
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/imshubham07/Travel.git
 cd Travel
 ```
 
