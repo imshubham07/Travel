@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  host
+  user
+}
+
+enum Status {
+  draft
+  published
+  blocked
+}
+
+enum BookingStatus {
+  confirmed
+  cancelled
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  passwordHash String
+  role      Role     @default(user)
+  createdAt DateTime @default(now())
+  experiences Experience[]
+  bookings  Booking[]
+}
+
+model Experience {
+  id        Int      @id @default(autoincrement())
+  title     String
+  description String?
+  location  String?
+  price     Float
+  startTime DateTime
+  status    Status   @default(draft)
+  createdBy Int
+  creator   User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+  createdAt DateTime @default(now())
+
+  @@index([location, startTime])
+}
+
+model Booking {
+  id            Int            @id @default(autoincrement())
+  experienceId  Int
+  experience    Experience     @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seats         Int
+  status        BookingStatus  @default(confirmed)
+  createdAt     DateTime       @default(now())
+
+  @@unique([userId, experienceId])
+  @@index([userId, experienceId])
+}
